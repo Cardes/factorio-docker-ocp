@@ -38,7 +38,8 @@ RUN set -ox pipefail \
     && rm "$archive" \
     && ln -s "$SCENARIOS" /opt/factorio/scenarios \
     && ln -s "$SAVES" /opt/factorio/saves \
-    && mkdir -p /opt/factorio/config/ 
+    && mkdir -p /opt/factorio/config/ \
+    && chmod 775 /opt/factorio/config/
 
 COPY --chmod=775 files/*.sh /
 COPY --chmod=665 files/config.ini /opt/factorio/config/config.ini
