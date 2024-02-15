@@ -1,12 +1,5 @@
 FROM frolvlad/alpine-glibc:alpine-3.12
 
-LABEL maintainer="https://github.com/factoriotools/factorio-docker"
-
-ARG USER=factorio
-ARG GROUP=factorio
-ARG PUID=845
-ARG PGID=845
-
 # version checksum of the archive to download
 ARG VERSION
 ARG SHA256
@@ -22,9 +15,7 @@ ENV PORT=34197 \
     CONFIG=/factorio/config \
     MODS=/factorio/mods \
     SCENARIOS=/factorio/scenarios \
-    SCRIPTOUTPUT=/factorio/script-output \
-    PUID="$PUID" \
-    PGID="$PGID"
+    SCRIPTOUTPUT=/factorio/script-output 
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 RUN set -ox pipefail \
@@ -47,13 +38,10 @@ RUN set -ox pipefail \
     && rm "$archive" \
     && ln -s "$SCENARIOS" /opt/factorio/scenarios \
     && ln -s "$SAVES" /opt/factorio/saves \
-    && mkdir -p /opt/factorio/config/ \
-    && addgroup -g "$PGID" -S "$GROUP" \
-    && adduser -u "$PUID" -G "$GROUP" -s /bin/sh -SDH "$USER" \
-    && chown -R "$USER":"$GROUP" /opt/factorio /factorio
+    && mkdir -p /opt/factorio/config/ 
 
-COPY files/*.sh /
-COPY files/config.ini /opt/factorio/config/config.ini
+COPY --chmod=775 files/*.sh /
+COPY --chmod=665 files/config.ini /opt/factorio/config/config.ini
 
 VOLUME /factorio
 EXPOSE $PORT/udp $RCON_PORT/tcp
