@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-glibc:alpine-3.12
+FROM frolvlad/alpine-glibc:alpine-3.19
 
 # version checksum of the archive to download
 ARG VERSION
