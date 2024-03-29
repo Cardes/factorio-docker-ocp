@@ -45,8 +45,10 @@ jobs:
           # Extract the sha256 and version based on the "tags":["stable"] condition
           sha256=$(echo "$buildinfo" | jq -r '.[] | select(.tags[] == "stable") | .sha256')
           version=$(echo "$buildinfo" | jq -r '.[] | select(.tags[] == "stable") | .tags[3]')
+          imagetags=$(echo "$buildinfo" | jq -r '.[] | select(.tags[] == "stable") | .tags[]')
           echo "SHA256=$sha256" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_ENV
+          echo "IMAGETAGS=$imagetags" >> $GITHUB_ENV
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
@@ -54,7 +56,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 #v3.4.0
         with:
-          cosign-release: 'v2.1.1'
+          cosign-release: 'v2.2.3'
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -88,7 +90,7 @@ jobs:
         with:
           context: docker
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ senv.IMAGETAGS }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
