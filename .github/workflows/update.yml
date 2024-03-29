@@ -15,7 +15,7 @@ jobs:
     if: github.event_name != 'schedule' || (github.event_name == 'schedule' && github.repository == 'cardes/factorio-ocp-docker')
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.REPO_TOKEN }}
 
