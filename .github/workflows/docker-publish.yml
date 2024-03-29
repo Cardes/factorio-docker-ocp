@@ -40,7 +40,7 @@ jobs:
       - name: Extract sha256 and version
         run: |
           # Read the buildinfo.json file
-          buildinfo=$(cat /home/cardes/git/factorio-docker-ocp/buildinfo.json)
+          buildinfo=$(cat buildinfo.json)
     
           # Extract the sha256 and version based on the "tags":["stable"] condition
           sha256=$(echo "$buildinfo" | jq -r '.[] | select(.tags[] == "stable") | .sha256')
