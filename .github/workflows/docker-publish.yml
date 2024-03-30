@@ -45,10 +45,8 @@ jobs:
           # Extract the sha256 and version based on the "tags":["stable"] condition
           sha256=$(echo "$buildinfo" | jq -r '.[] | select(.tags[] == "stable") | .sha256')
           version=$(echo "$buildinfo" | jq -r '.[] | select(.tags[] == "stable") | .tags[3]')
-          imagetags=$(echo "$buildinfo" | jq -r '.[] | select(.tags[] == "stable") | .tags[]')
           echo "SHA256=$sha256" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_ENV
-          echo "IMAGETAGS=$imagetags" >> $GITHUB_ENV
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
@@ -90,7 +88,7 @@ jobs:
         with:
           context: docker
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.IMAGETAGS }}
+          tags: ${{ env.VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
