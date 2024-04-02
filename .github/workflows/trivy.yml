@@ -6,13 +6,12 @@
 name: trivy
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "master" ]
   schedule:
     - cron: '42 13 * * 5'
+  workflow_run:
+    workflows: ["Docker"]
+    types:
+      - completed
 
 permissions:
   contents: read
