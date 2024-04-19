@@ -44,7 +44,7 @@ jobs:
     
           # Extract the sha256 and version based on the "tags":["stable"] condition
           sha256=$(echo "$buildinfo" | jq -r '.[] | select(.tags[] == "stable") | .sha256')
-          version=$(echo "$buildinfo" | jq 'with_entries(select(contains({value:{tags:["stable"]}}))) | keys | .[0]')
+          version=$(echo "$buildinfo" | jq -r 'with_entries(select(contains({value:{tags:["stable"]}}))) | keys | .[0]')
           echo "SHA256=$sha256" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_ENV
 
@@ -54,7 +54,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 #v3.5.0
         with:
-          cosign-release: 'v2.2.3'
+          cosign-release: 'v2.2.4'
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
