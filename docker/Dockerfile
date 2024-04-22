@@ -1,6 +1,6 @@
 FROM debian:stable-slim
 
-LABEL maintainer="https://github.com/factoriotools/factorio-docker"
+LABEL maintainer="https://github.com/Cardes/factorio-docker-ocp"
 
 ARG USER=factorio
 ARG GROUP=factorio
@@ -23,9 +23,7 @@ ENV PORT=34197 \
     CONFIG=/factorio/config \
     MODS=/factorio/mods \
     SCENARIOS=/factorio/scenarios \
-    SCRIPTOUTPUT=/factorio/script-output \
-    PUID="$PUID" \
-    PGID="$PGID"
+    SCRIPTOUTPUT=/factorio/script-output 
 
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 RUN set -ox pipefail \
@@ -63,8 +61,8 @@ RUN set -ox pipefail \
     && adduser --system --uid "$PUID" --gid "$PGID" --no-create-home --disabled-password --shell /bin/sh "$USER" \
     && chown -R "$USER":"$GROUP" /opt/factorio /factorio
 
-COPY files/*.sh /
-COPY files/config.ini /opt/factorio/config/config.ini
+COPY --chmod=775 files/*.sh /
+COPY --chmod=665 files/config.ini /opt/factorio/config/config.ini
 
 VOLUME /factorio
 EXPOSE $PORT/udp $RCON_PORT/tcp
