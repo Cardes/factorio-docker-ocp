@@ -1,4 +1,12 @@
-FROM frolvlad/alpine-glibc:alpine-3.19
+FROM debian:stable-slim
+
+LABEL maintainer="https://github.com/Cardes/factorio-docker-ocp"
+
+ARG USER=factorio
+ARG GROUP=factorio
+ARG PUID=845
+ARG PGID=845
+ARG BOX64_VERSION=v0.2.4
 
 # version checksum of the archive to download
 ARG VERSION
@@ -17,7 +25,7 @@ ENV PORT=34197 \
     SCENARIOS=/factorio/scenarios \
     SCRIPTOUTPUT=/factorio/script-output 
 
-SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 RUN set -ox pipefail \
     && if [[ "${VERSION}" == "" ]]; then \
         echo "build-arg VERSION is required" \
@@ -29,17 +37,29 @@ RUN set -ox pipefail \
     fi \
     && archive="/tmp/factorio_headless_x64_$VERSION.tar.xz" \
     && mkdir -p /opt /factorio \
-    && apk add --update --no-cache --no-progress bash binutils curl file gettext jq libintl pwgen shadow su-exec \
+    && apt-get -q update \
+    && DEBIAN_FRONTEND=noninteractive apt-get -qy install ca-certificates curl jq pwgen xz-utils procps --no-install-recommends \
     && curl -sSL "https://www.factorio.com/get-download/$VERSION/headless/linux64" -o "$archive" --retry $CURL_RETRIES\
     && echo "$SHA256  $archive" | sha256sum -c \
     || (sha256sum "$archive" && file "$archive" && exit 1) \
     && tar xf "$archive" --directory /opt \
     && chmod ugo=rwx /opt/factorio \
     && rm "$archive" \
+    && if [[ "$(uname -m)" == "aarch64" ]]; then \
+        echo "installing ARM compatability layer" \
+        && DEBIAN_FRONTEND=noninteractive apt-get -qy install unzip --no-install-recommends \ 
+        && curl -LO https://github.com/ptitSeb/box64/releases/download/${BOX64_VERSION}/box64-GENERIC_ARM-RelWithDebInfo.zip \
+        && unzip box64-GENERIC_ARM-RelWithDebInfo.zip -d /bin \
+        && rm -f box64-GENERIC_ARM-RelWithDebInfo.zip \
+        && chmod +x /bin/box64; \
+    fi \
+    && rm -rf /var/lib/apt/lists/* \
     && ln -s "$SCENARIOS" /opt/factorio/scenarios \
     && ln -s "$SAVES" /opt/factorio/saves \
     && mkdir -p /opt/factorio/config/ \
-    && chmod 775 /opt/factorio/config/
+    && addgroup --system --gid "$PGID" "$GROUP" \
+    && adduser --system --uid "$PUID" --gid "$PGID" --no-create-home --disabled-password --shell /bin/sh "$USER" \
+    && chown -R "$USER":"$GROUP" /opt/factorio /factorio
 
 COPY --chmod=775 files/*.sh /
 COPY --chmod=665 files/config.ini /opt/factorio/config/config.ini
