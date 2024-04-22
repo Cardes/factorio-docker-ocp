@@ -2,7 +2,7 @@ name: Check Update
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "4 * * * *"
   workflow_dispatch:
     inputs:
       desc:
@@ -12,12 +12,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event_name != 'schedule' || (github.event_name == 'schedule' && github.repository == 'factoriotools/factorio-docker')
+    if: github.event_name != 'schedule' || (github.event_name == 'schedule' && github.repository == 'Cardes/factorio-docker-ocp')
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.REPO_TOKEN }}
+      - uses: actions/checkout@v4
 
       - name: Run update script
         run: ./update.sh
